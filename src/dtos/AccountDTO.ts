@@ -1,5 +1,4 @@
 import { status_conta } from "@prisma/client";
-import { Decimal } from "@prisma/client/runtime";
 
 export interface AccountEntrada{
     id_usuario: number;
