@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { UserIn, UserOut } from "dtos/UsersDTO";
+import { UsuarioEntrada, UsuarioSaida } from "dtos/UsersDTO";
 import UserModel from "models/UserModel";
 
 const userModel = new UserModel();
@@ -7,14 +7,14 @@ const userModel = new UserModel();
 export default class UserController {
   create = async (req: Request, res: Response) => {
     try {
-      const user: UserIn = req.body;
-      const newUser: UserOut = await userModel.create(user);
+      const user: UsuarioEntrada = req.body;
+      const newUser: UsuarioSaida = await userModel.create(user);
       res.status(201).json(newUser);
     } catch (e) {
       console.log("Failed to create user", e);
       res.status(500).send({
         error: "USR-01",
-        message: "Failed to create user",
+        message: "Failed to create user" + e,
       });
     }
   };
@@ -22,7 +22,7 @@ export default class UserController {
   get = async (req: Request, res: Response) => {
     try {
       const id: number = parseInt(req.params.id);
-      const newUser: UserOut | null = await userModel.get(id);
+      const newUser: UsuarioSaida | null = await userModel.get(id);
 
       if (newUser) {
         res.status(200).json(newUser);
@@ -43,7 +43,7 @@ export default class UserController {
 
   getAll = async (req: Request, res: Response) => {
     try {
-      const users: UserOut[] | null = await userModel.getAll();
+      const users: UsuarioSaida[] | null = await userModel.getAll();
       res.status(200).json(users);
     } catch (e) {
       console.log("Failed to get all users", e);
@@ -57,8 +57,8 @@ export default class UserController {
   update = async (req: Request, res: Response) => {
     try {
       const id: number = parseInt(req.params.id);
-      const updateUser: UserIn = req.body;
-      const userUpdated: UserOut | null = await userModel.update(
+      const updateUser: UsuarioEntrada = req.body;
+      const userUpdated: UsuarioSaida | null = await userModel.update(
         id,
         updateUser
       );
@@ -75,7 +75,7 @@ export default class UserController {
       console.log("Failed to update user", e);
       res.status(500).send({
         error: "USR-04",
-        message: "Failed to update user",
+        message: "Failed to update user"+e,
       });
     }
   };

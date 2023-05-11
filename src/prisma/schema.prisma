@@ -19,7 +19,7 @@ model Usuario {
   email                   String @unique
   cpf                     String @unique @db.VarChar(11)
   senha                   String 
-  data_nascimento         DateTime
+  data_nascimento         DateTime @db.Date 
   endereco                Endereco?
   conta_bancaria          Conta_Bancaria? 
 }
@@ -34,15 +34,15 @@ model Endereco {
   cidade                  String
   numero                  Int
   UF                      String @db.VarChar(2) 
-  complemento             String @db.VarChar(1) 
+  complemento             String
 }
 
 model Conta_Bancaria {
   id                      Int   @id @default(autoincrement())
   usuario                 Usuario @relation(fields: [id_usuario], references: [id])
   id_usuario              Int @unique
-  numero_conta            String @unique
-  agencia                 String
+  numero_conta            String @unique 
+  agencia                 String @default("0001")
   saldo                   Float @default(0)
   senha_transacional      String @db.VarChar(4)
   nome_banco              String @default("RubBank")

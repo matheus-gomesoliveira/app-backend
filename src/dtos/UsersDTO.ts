@@ -1,14 +1,14 @@
-export interface UserIn {
-  full_name: string;
+export interface UsuarioEntrada {
+  nome_completo: string;
+  telefone: string;
   email: string;
-  phone: string;
   cpf: string;
-  password: string;
-  transaction_password: string;
+  senha: string;
+  data_nascimento: Date;
 }
 
-export interface UserOut {
+export interface UsuarioSaida {
   id: number;
   email: string;
-  full_name: string | null;
+  nome_completo: string | null;
 }

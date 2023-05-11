@@ -1,22 +1,22 @@
 import { PrismaClient } from '@prisma/client';
-import { UserIn } from 'dtos/UsersDTO';
+import { UsuarioEntrada } from 'dtos/UsersDTO';
 
 const prisma = new PrismaClient();
 
 export default class UserModel {
 
-  create = async (user: UserIn) => {
-    return await prisma.user.create({
+  create = async (user: UsuarioEntrada) => {
+    return await prisma.usuario.create({
       data: user
     });
   }
 
   getAll = async () => {
-    return await prisma.user.findMany();
+    return await prisma.usuario.findMany();
   }
 
   get = async (id: number) => {
-    return await prisma.user.findUnique({
+    return await prisma.usuario.findUnique({
       where: {
         id
       }
@@ -24,15 +24,15 @@ export default class UserModel {
   }
 
   delete = async (id: number) => {
-    return await prisma.user.delete({
+    return await prisma.usuario.delete({
       where: {
         id
       }
     })
   }
 
-  update = async (id: number, user: UserIn) => {
-    return await prisma.user.update({
+  update = async (id: number, user: UsuarioEntrada) => {
+    return await prisma.usuario.update({
       where: {
         id
       },

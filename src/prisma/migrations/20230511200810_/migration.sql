@@ -12,7 +12,7 @@ CREATE TABLE "Usuario" (
     "email" TEXT NOT NULL,
     "cpf" VARCHAR(11) NOT NULL,
     "senha" TEXT NOT NULL,
-    "data_nascimento" TIMESTAMP(3) NOT NULL,
+    "data_nascimento" DATE NOT NULL,
 
     CONSTRAINT "Usuario_pkey" PRIMARY KEY ("id")
 );
@@ -27,7 +27,7 @@ CREATE TABLE "Endereco" (
     "cidade" TEXT NOT NULL,
     "numero" INTEGER NOT NULL,
     "UF" VARCHAR(2) NOT NULL,
-    "complemento" VARCHAR(1) NOT NULL,
+    "complemento" TEXT NOT NULL,
 
     CONSTRAINT "Endereco_pkey" PRIMARY KEY ("id")
 );
@@ -37,7 +37,7 @@ CREATE TABLE "Conta_Bancaria" (
     "id" SERIAL NOT NULL,
     "id_usuario" INTEGER NOT NULL,
     "numero_conta" TEXT NOT NULL,
-    "agencia" TEXT NOT NULL,
+    "agencia" TEXT NOT NULL DEFAULT '0001',
     "saldo" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "senha_transacional" VARCHAR(4) NOT NULL,
     "nome_banco" TEXT NOT NULL DEFAULT 'RubBank',

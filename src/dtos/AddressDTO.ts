@@ -1,9 +1,14 @@
-export interface AddressIn {
+export interface EnderecoEntrada {
+  id_usuario: number;
   cep: string;
-  street: string;
-  number: string;
-  complement: string;
-  neighborhood: string;
-  city: string;
-  state: string;
+  rua: string;
+  bairro: string;
+  cidade: string;
+  numero: number;
+  UF: string;
+  complemento: string;
+}
+
+export interface EnderecoSaida{
+  id: number
 }
