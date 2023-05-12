@@ -8,9 +8,9 @@ CREATE TYPE "status_conta" AS ENUM ('ativa', 'inativa', 'bloqueada');
 CREATE TABLE "Usuario" (
     "id" SERIAL NOT NULL,
     "nome_completo" TEXT NOT NULL,
-    "telefone" VARCHAR(11) NOT NULL,
+    "telefone" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "cpf" VARCHAR(11) NOT NULL,
+    "cpf" TEXT NOT NULL,
     "senha" TEXT NOT NULL,
     "data_nascimento" DATE NOT NULL,
 
@@ -21,7 +21,7 @@ CREATE TABLE "Usuario" (
 CREATE TABLE "Endereco" (
     "id" SERIAL NOT NULL,
     "id_usuario" INTEGER NOT NULL,
-    "cep" VARCHAR(8) NOT NULL,
+    "cep" TEXT NOT NULL,
     "rua" TEXT NOT NULL,
     "bairro" TEXT NOT NULL,
     "cidade" TEXT NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE "Conta_Bancaria" (
     "id_usuario" INTEGER NOT NULL,
     "numero_conta" TEXT NOT NULL,
     "agencia" TEXT NOT NULL DEFAULT '0001',
-    "saldo" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "saldo" DOUBLE PRECISION NOT NULL,
     "senha_transacional" VARCHAR(4) NOT NULL,
     "nome_banco" TEXT NOT NULL DEFAULT 'RubBank',
     "status_conta" "status_conta" NOT NULL,

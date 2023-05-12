@@ -15,9 +15,9 @@ datasource db {
 model Usuario {
   id                      Int    @id @default(autoincrement())
   nome_completo           String 
-  telefone                String @unique @db.VarChar(11)
+  telefone                String @unique 
   email                   String @unique
-  cpf                     String @unique @db.VarChar(11)
+  cpf                     String @unique 
   senha                   String 
   data_nascimento         DateTime @db.Date 
   endereco                Endereco?
@@ -28,7 +28,7 @@ model Endereco {
   id                      Int   @id @default(autoincrement())
   usuario                 Usuario @relation(fields: [id_usuario], references: [id])
   id_usuario              Int @unique
-  cep                     String @db.VarChar(8) 
+  cep                     String 
   rua                     String
   bairro                  String
   cidade                  String
@@ -43,7 +43,7 @@ model Conta_Bancaria {
   id_usuario              Int @unique
   numero_conta            String @unique 
   agencia                 String @default("0001")
-  saldo                   Float @default(0)
+  saldo                   Float 
   senha_transacional      String @db.VarChar(4)
   nome_banco              String @default("RubBank")
   status_conta            status_conta

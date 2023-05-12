@@ -1,22 +1,17 @@
 import { status_conta } from "@prisma/client";
 
-export interface AccountEntrada{
+export interface ContaEntrada{
     id_usuario: number;
     numero_conta: string;
     agencia: string;
     saldo: number;
-    senha_transacional: number;
+    senha_transacional: string;
     nome_banco: string;
     status_conta: status_conta;
 };
 
-export interface AccountSaida{
+export interface ContaSaida{
     id: number;
 };
 
-enum status_conta {
-    ativa,
-    inativa,
-    bloqueada
-  };
   

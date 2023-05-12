@@ -6,15 +6,16 @@ services:
     image: postgres:alpine
     restart: always
     expose:
-      - 6000
+      - 5432
     ports:
-      - 6000:6000
+      - 5432:5432
     networks:
       - rubcamp
     environment:
       - POSTGRES_DB=rubcamp
       - POSTGRES_USER=rubcamp
       - POSTGRES_PASSWORD=rubcamp123
+      
 
   web:
     container_name: web
