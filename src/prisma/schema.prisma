@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  binaryTargets = ["native", "darwin", "darwin-arm64", "linux-musl", "debian-openssl-1.1.x", "darwin"]
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "darwin", "darwin-arm64", "linux-musl", "debian-openssl-1.1.x", "darwin"]
   previewFeatures = ["interactiveTransactions"]
 }
 
@@ -13,54 +13,55 @@ datasource db {
 }
 
 model Usuario {
-  id                      Int    @id @default(autoincrement())
-  nome_completo           String 
-  telefone                String @unique 
-  email                   String @unique
-  cpf                     String @unique 
-  senha                   String 
-  data_nascimento         DateTime @db.Date 
-  endereco                Endereco?
-  conta_bancaria          Conta_Bancaria? 
+  id              Int             @id @default(autoincrement())
+  nome_completo   String
+  telefone        String          @unique
+  email           String          @unique
+  cpf             String          @unique
+  senha           String
+  data_nascimento DateTime        @db.Date
+  endereco        Endereco?
+  conta_bancaria  Conta_Bancaria?
 }
 
 model Endereco {
-  id                      Int   @id @default(autoincrement())
-  usuario                 Usuario @relation(fields: [id_usuario], references: [id])
-  id_usuario              Int @unique
-  cep                     String 
-  rua                     String
-  bairro                  String
-  cidade                  String
-  numero                  Int
-  UF                      String @db.VarChar(2) 
-  complemento             String
+  id          Int     @id @default(autoincrement())
+  usuario     Usuario @relation(fields: [id_usuario], references: [id])
+  id_usuario  Int     @unique
+  cep         String
+  rua         String
+  bairro      String
+  cidade      String
+  numero      Int
+  UF          String  @db.VarChar(2)
+  complemento String
 }
 
 model Conta_Bancaria {
-  id                      Int   @id @default(autoincrement())
-  usuario                 Usuario @relation(fields: [id_usuario], references: [id])
-  id_usuario              Int @unique
-  numero_conta            String @unique 
-  agencia                 String @default("0001")
-  saldo                   Float 
-  senha_transacional      String @db.VarChar(4)
-  nome_banco              String @default("RubBank")
-  status_conta            status_conta
-  remetente               Transferencia[] @relation("remetente")
-  destinatario            Transferencia[] @relation("destinatario")
+  id                 Int             @id @default(autoincrement())
+  usuario            Usuario         @relation(fields: [id_usuario], references: [id])
+  id_usuario         Int             @unique
+  numero_conta       Int             @default(autoincrement())
+  agencia            String          @default("0001")
+  saldo              Decimal
+  senha_transacional String
+  nome_banco         String          @default("RubBank")
+  tipo_conta         tipo_conta      @default(individual)
+  status_conta       status_conta
+  remetente          Transferencia[] @relation("remetente")
+  destinatario       Transferencia[] @relation("destinatario")
 }
 
 model Transferencia {
-  id                    Int   @id @default(autoincrement())
-  remetente             Conta_Bancaria @relation("remetente", fields: [id_remetente], references:[id])
-  destinatario          Conta_Bancaria @relation("destinatario", fields: [id_destinatario], references:[id])
-  id_remetente          Int @unique
-  id_destinatario       Int @unique
-  data_transferencia    DateTime @default(now())
-  valor                 Float
-  descricao             String
-  status                status_transfer
+  id                 Int             @id @default(autoincrement())
+  remetente          Conta_Bancaria  @relation("remetente", fields: [id_remetente], references: [id])
+  destinatario       Conta_Bancaria  @relation("destinatario", fields: [id_destinatario], references: [id])
+  id_remetente       Int             @unique
+  id_destinatario    Int             @unique
+  data_transferencia DateTime        @default(now())
+  valor              Decimal
+  descricao          String
+  status             status_transfer
 }
 
 enum status_transfer {
@@ -69,9 +70,13 @@ enum status_transfer {
   recusada
 }
 
-
 enum status_conta {
   ativa
   inativa
   bloqueada
+}
+
+enum tipo_conta {
+  admin
+  individual
 }

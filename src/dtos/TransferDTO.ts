@@ -1,15 +1,16 @@
 import { status_transfer } from "@prisma/client"
+import { Decimal } from "@prisma/client/runtime";
 
 export interface TransferEntrada{
-    id: number;
     id_remetente: number;
-    data_transferencia: Date;
     id_destinatario: number;
-    valor: number;
+    numero_conta?: number;
+    cpf?: string;
+    data_transferencia: Date;
+    valor: Decimal;
     descricao: string;
     status: status_transfer;
 };
 
 export interface TransferSaida{
-    id: number;
 };

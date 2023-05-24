@@ -1,24 +1,23 @@
 import { Request, Response } from "express";
 import { ContaEntrada, ContaSaida } from "dtos/AccountDTO";
 import AccountModel from "models/AccountModel";
-
 const accountModel = new AccountModel;
 
 export default class AccountController {
-    create =async (req: Request, res: Response) => {
-        try{
-            const account: ContaEntrada = req.body;
-            const newAccount : ContaSaida = await accountModel.create(account);
-            res.status(201).json(newAccount);
-        }   catch(e){
-            console.log("Failed to crate account.", e);
-            res.status(500).send({
-                error: "ACC-01",
-                message: "Failed to create account." + e,
-            });
-        }
+    // create =async (req: Request, res: Response) => {
+    //     try{
+    //         const account: ContaEntrada = req.body;
+    //         const newAccount : ContaSaida = await accountModel.create(account);
+    //         res.status(201).json(newAccount);
+    //     }   catch(e){
+    //         console.log("Failed to crate account.", e);
+    //         res.status(500).send({
+    //             error: "ACC-01",
+    //             message: "Failed to create account." + e,
+    //         });
+    //     }
         
-    };
+    // };
 
     get = async (req: Request, res: Response) => {
         try{
@@ -30,14 +29,14 @@ export default class AccountController {
             }   else {
                 res.status(404).json({
                     error: "ACC-06",
-                    message: "Account not found.",
+                    message: "Conta não encontrada",
                 })
             }
         }   catch(e){
             console.log("Failed to get account.", e);
             res.status(500).send({
                 error: "ACC-02",
-                message: "Failed to get account",
+                message: "Falha ao buscar conta",
             });
         }
     };
@@ -59,7 +58,7 @@ export default class AccountController {
         try {
             const id: number =  parseInt(req.params.id);
             const updateAccount: ContaEntrada = req.body;
-            const accountUpdated: ContaSaida | null = await accountModel.update(
+            const accountUpdated: ContaEntrada | null = await accountModel.update(
                 id,
                 updateAccount
             );
@@ -94,4 +93,57 @@ export default class AccountController {
             });
         }
     };
+
+    getBalance = async (req: Request, res: Response) => {
+        try{
+            const id: number = parseInt(req.app.locals.payload);
+            const newAccount = await accountModel.get(id);
+            console.log(newAccount)
+            if (newAccount){
+                res.status(200).json({ 
+                    nome_banco: newAccount.nome_banco,
+                    numero_conta:newAccount.numero_conta,
+                    agencia:newAccount.agencia, 
+                    saldo:newAccount.saldo });
+            }   else {
+                res.status(404).json({
+                    error: "ACC-06",
+                    message: "Conta não encontrada",
+                })
+            }
+        }   catch(e){
+            console.log("Failed to get account.", e);
+            res.status(500).send({
+                error: "ACC-02",
+                message: "Falha ao encontrar conta",
+            });
+        }
+    };
+
+    updateBalance = async (req: Request, res: Response) => {
+        try {
+            const id: number =  parseInt(req.params.id);
+            const updateAccount: ContaEntrada = req.body;
+            const accountUpdated: ContaEntrada | null = await accountModel.update(
+                id,
+                updateAccount
+            );
+
+            if (accountUpdated) {
+                res.status(200).json(accountUpdated)
+            } else {
+                res.status(404).json({
+                    error: "ACC-06",
+                    message: "Account not fount.",
+                });
+            }
+        }   catch(e){
+            console.log("Failed do update account", e);
+            res.status(500).send({
+                error:"ACC-04",
+                message:"Failed to update account" + e,
+            });
+        }
+    };
+
 };

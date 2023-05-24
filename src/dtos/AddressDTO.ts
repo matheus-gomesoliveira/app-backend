@@ -1,5 +1,4 @@
 export interface EnderecoEntrada {
-  id_usuario: number;
   cep: string;
   rua: string;
   bairro: string;

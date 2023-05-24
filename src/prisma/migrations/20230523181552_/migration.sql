@@ -4,6 +4,9 @@ CREATE TYPE "status_transfer" AS ENUM ('pendente', 'confirmada', 'recusada');
 -- CreateEnum
 CREATE TYPE "status_conta" AS ENUM ('ativa', 'inativa', 'bloqueada');
 
+-- CreateEnum
+CREATE TYPE "tipo_conta" AS ENUM ('admin', 'individual');
+
 -- CreateTable
 CREATE TABLE "Usuario" (
     "id" SERIAL NOT NULL,
@@ -36,11 +39,12 @@ CREATE TABLE "Endereco" (
 CREATE TABLE "Conta_Bancaria" (
     "id" SERIAL NOT NULL,
     "id_usuario" INTEGER NOT NULL,
-    "numero_conta" TEXT NOT NULL,
+    "numero_conta" SERIAL NOT NULL,
     "agencia" TEXT NOT NULL DEFAULT '0001',
-    "saldo" DOUBLE PRECISION NOT NULL,
-    "senha_transacional" VARCHAR(4) NOT NULL,
+    "saldo" DECIMAL(65,30) NOT NULL,
+    "senha_transacional" TEXT NOT NULL,
     "nome_banco" TEXT NOT NULL DEFAULT 'RubBank',
+    "tipo_conta" "tipo_conta" NOT NULL DEFAULT 'individual',
     "status_conta" "status_conta" NOT NULL,
 
     CONSTRAINT "Conta_Bancaria_pkey" PRIMARY KEY ("id")
@@ -52,7 +56,7 @@ CREATE TABLE "Transferencia" (
     "id_remetente" INTEGER NOT NULL,
     "id_destinatario" INTEGER NOT NULL,
     "data_transferencia" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "valor" DOUBLE PRECISION NOT NULL,
+    "valor" DECIMAL(65,30) NOT NULL,
     "descricao" TEXT NOT NULL,
     "status" "status_transfer" NOT NULL,
 
@@ -73,9 +77,6 @@ CREATE UNIQUE INDEX "Endereco_id_usuario_key" ON "Endereco"("id_usuario");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Conta_Bancaria_id_usuario_key" ON "Conta_Bancaria"("id_usuario");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Conta_Bancaria_numero_conta_key" ON "Conta_Bancaria"("numero_conta");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Transferencia_id_remetente_key" ON "Transferencia"("id_remetente");

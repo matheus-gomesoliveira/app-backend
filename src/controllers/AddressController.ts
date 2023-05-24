@@ -5,19 +5,19 @@ import AddressModel from "models/AddresModel";
 const addressModel = new AddressModel();
 
 export default class AddressController{
-    create = async (req: Request, res: Response) => {
-    try {
-        const address: EnderecoEntrada = req.body;
-        const newAddress: EnderecoSaida = await addressModel.create(address);
-        res.status(201).json(newAddress);
-      } catch (e) {
-        console.log("Failed to create address", e);
-        res.status(500).send({
-          error: "USR-01",
-          message: "Failed to create address" + e,
-        });
-      }
-    };
+    // create = async (req: Request, res: Response) => {
+    // try {
+    //     const address: EnderecoEntrada = req.body;
+    //     const newAddress: EnderecoSaida = await addressModel.create(address);
+    //     res.status(201).json(newAddress);
+    //   } catch (e) {
+    //     console.log("Failed to create address", e);
+    //     res.status(500).send({
+    //       error: "USR-01",
+    //       message: "Failed to create address" + e,
+    //     });
+    //   }
+    // };
 
     get = async (req: Request, res: Response) => {
         try {
@@ -68,14 +68,14 @@ export default class AddressController{
           } else {
             res.status(404).json({
               error: "USR-06",
-              message: "User not found.",
+              message: "usuario not found.",
             });
           }
         } catch (e) {
-          console.log("Failed to update user", e);
+          console.log("Failed to update usuario", e);
           res.status(500).send({
             error: "USR-04",
-            message: "Failed to update user"+e,
+            message: "Failed to update usuario"+e,
           });
         }
       };
@@ -86,10 +86,10 @@ export default class AddressController{
           const addressDeleted = await addressModel.delete(id);
           res.status(204).json(addressDeleted);
         } catch (e) {
-          console.log("Failed to delete user", e);
+          console.log("Failed to delete usuario", e);
           res.status(500).send({
             error: "USR-05",
-            message: "Failed to delete user",
+            message: "Failed to delete usuario",
           });
         }
       };
