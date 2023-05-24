@@ -6,7 +6,7 @@ const routes = Router();
 const transferController = new TransferController();
 
 routes.post('/', authentication, transferController.transfer);
-// routes.get('/', transferController.getAll);
+routes.get('/:id_transferencia', authentication, transferController.getTransfer);
 // routes.get('/:id', transferController.get);
 
 export default routes;

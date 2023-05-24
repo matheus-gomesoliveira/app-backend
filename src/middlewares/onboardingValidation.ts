@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { validacaoDadosUsuario } from "functions/ValidationFunctions";
+import { validacaoDadosUsuario } from "functions/ValidationFunctions"
 import { FullUsuarioEntrada } from "dtos/UserDTO";
 import { EnderecoEntrada } from "dtos/AddressDTO";
 import { ContaEntrada } from "dtos/AccountDTO";

@@ -83,8 +83,8 @@ export default class UserModel {
   getUserCPF = async (cpf: string) => {
     return await prisma.usuario.findUnique({
       where: {
-        cpf: cpf,
-      },
+        cpf: cpf
+      }
     });
   };
 

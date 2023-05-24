@@ -98,7 +98,6 @@ export default class AccountController {
         try{
             const id: number = parseInt(req.app.locals.payload);
             const newAccount = await accountModel.get(id);
-            console.log(newAccount)
             if (newAccount){
                 res.status(200).json({ 
                     nome_banco: newAccount.nome_banco,

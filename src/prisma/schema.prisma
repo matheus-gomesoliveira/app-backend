@@ -47,7 +47,7 @@ model Conta_Bancaria {
   senha_transacional String
   nome_banco         String          @default("RubBank")
   tipo_conta         tipo_conta      @default(individual)
-  status_conta       status_conta
+  status_conta       status_conta    @default(ativa)
   remetente          Transferencia[] @relation("remetente")
   destinatario       Transferencia[] @relation("destinatario")
 }
@@ -56,8 +56,8 @@ model Transferencia {
   id                 Int             @id @default(autoincrement())
   remetente          Conta_Bancaria  @relation("remetente", fields: [id_remetente], references: [id])
   destinatario       Conta_Bancaria  @relation("destinatario", fields: [id_destinatario], references: [id])
-  id_remetente       Int             @unique
-  id_destinatario    Int             @unique
+  id_remetente       Int             
+  id_destinatario    Int             
   data_transferencia DateTime        @default(now())
   valor              Decimal
   descricao          String

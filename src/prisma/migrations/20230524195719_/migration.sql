@@ -45,7 +45,7 @@ CREATE TABLE "Conta_Bancaria" (
     "senha_transacional" TEXT NOT NULL,
     "nome_banco" TEXT NOT NULL DEFAULT 'RubBank',
     "tipo_conta" "tipo_conta" NOT NULL DEFAULT 'individual',
-    "status_conta" "status_conta" NOT NULL,
+    "status_conta" "status_conta" NOT NULL DEFAULT 'ativa',
 
     CONSTRAINT "Conta_Bancaria_pkey" PRIMARY KEY ("id")
 );
@@ -77,12 +77,6 @@ CREATE UNIQUE INDEX "Endereco_id_usuario_key" ON "Endereco"("id_usuario");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Conta_Bancaria_id_usuario_key" ON "Conta_Bancaria"("id_usuario");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Transferencia_id_remetente_key" ON "Transferencia"("id_remetente");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Transferencia_id_destinatario_key" ON "Transferencia"("id_destinatario");
 
 -- AddForeignKey
 ALTER TABLE "Endereco" ADD CONSTRAINT "Endereco_id_usuario_fkey" FOREIGN KEY ("id_usuario") REFERENCES "Usuario"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
