@@ -5,7 +5,7 @@ import { authentication } from 'middlewares/auth';
 const routes = Router();
 const transferController = new TransferController();
 
-routes.post('/:id', authentication, transferController.transfer);
+routes.post('/', authentication, transferController.transfer);
 // routes.get('/', transferController.getAll);
 // routes.get('/:id', transferController.get);
 
