@@ -19,6 +19,7 @@ app.get("/", (req, res) => {
 app.use("/account", accountRoutes)
 app.use("/balance", accountRoutes)
 app.use("/transfer", transferRoutes)
+app.use("/extract", transferRoutes)
 // app.use("/transfer", authentication, transferRoutes)
 app.use("/login", usersRoutes)
 app.use("/register", onboardingRoutes)

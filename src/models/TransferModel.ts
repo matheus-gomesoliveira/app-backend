@@ -66,6 +66,21 @@ export default class TransferModel {
     });
   }
 
+  getAllTransfers = async (id_conta: number) => {
+    return await prisma.transferencia.findMany({
+      where: {
+        OR:[
+          {
+            id_remetente: id_conta
+          },
+          {
+            id_destinatario: id_conta
+          }
+        ]
+      }
+    })
+  }
+
 //   getAll = async () => {
 //     return await prisma.transferencia.findMany();
 //   }

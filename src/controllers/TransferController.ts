@@ -199,4 +199,64 @@ export default class TransferController {
       });
     }
   };
+
+  getExtrato = async (req: Request, res: Response) => {
+    try {
+      const id_usuario_alvo = parseInt(req.app.locals.payload)
+      const conta_alvo = await accountModel.getConta(id_usuario_alvo)
+      if(conta_alvo){
+        const id_conta_alvo = conta_alvo.id
+        const extrato = await transferModel.getAllTransfers(id_conta_alvo) 
+
+        const arr_extrato =[]
+
+        /*VARIAVEL FORA*/
+        var conta_origem : ContaEntrada
+      
+      for(const transferencia of extrato){
+
+        const conta_origem = await accountModel.get(transferencia.id_remetente) 
+        const conta_destino = await accountModel.get(transferencia.id_destinatario) 
+                
+        const usuario_origem = await userModel.get(conta_origem?.id_usuario)
+        const usuario_destino = await userModel.get(conta_destino?.id_usuario)
+        
+        const is_conta_origem:boolean = (id_usuario_alvo == usuario_origem?.id) 
+        const is_conta_destino:boolean = (id_usuario_alvo == usuario_destino?.id)
+
+        var tipo_transfer;
+        if (is_conta_origem) {
+          tipo_transfer = "SAIDA";
+        } else {
+          if (is_conta_destino) {
+            tipo_transfer = "ENTRADA";
+          }
+        }
+
+
+        const tranferencia_tratada = {
+          id_transferencia:transferencia.id,
+          conta_origem:conta_origem?.numero_conta,
+          conta_destino:conta_destino?.numero_conta,
+          data_transferencia:transferencia.data_transferencia,
+          valor:transferencia.valor,
+          descricao:transferencia.descricao,
+          status:transferencia.status,
+          tipo:tipo_transfer,
+        }
+        arr_extrato.push(tranferencia_tratada)
+       }
+       
+        res.status(201).send(arr_extrato)
+      }
+
+    } catch (e) {
+      console.log("Não foi possível recuperar o extrato", e)
+      res.status(500).send({
+        error:"EXT-00",
+        message: "Não foi possível recuperar o extrato"
+      })
+    }
+    
+  }
 }
