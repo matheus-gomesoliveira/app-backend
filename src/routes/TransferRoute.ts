@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import TransferController from 'controllers/Transfer.Controller';
+import TransferController from 'controllers/TransferController';
 import { authentication } from 'middlewares/auth';
 
 const routes = Router();

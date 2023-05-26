@@ -4,9 +4,13 @@ import UserModel from "models/UserModel";
 import { hash, compare } from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Usuario } from "@prisma/client";
+import AddressModel from "models/AddresModel";
+import AccountModel from "models/AccountModel";
 
 
 const userModel = new UserModel();
+const addressModel = new AddressModel()
+const accountModel =  new AccountModel()
 
 export default class UserController {
   create = async (req: Request, res: Response) => {
@@ -37,7 +41,10 @@ export default class UserController {
         });
       }
       const newUser: UsuarioSaida = await userModel.create(usuario);
-      res.status(201).json(newUser);
+      res.status(201).json({
+        status: "Cadastro realizado com sucesso",
+        message: "Bem-vindo ao RubBank, " + newUser.nome_completo
+      });
     } catch (e) {
       console.log("Failed to create usuario", e);
       res.status(500).send({
@@ -51,9 +58,34 @@ export default class UserController {
     try {
       const id: number = parseInt(req.app.locals.payload);
       const newUser: UsuarioSaida | null = await userModel.get(id);
+      const endereco = await addressModel.get(id)
+      const conta = await  accountModel.get(id)
 
-      if (newUser) {
-        res.status(200).json(newUser);
+      if (newUser && endereco && conta) {
+        res.status(200).json({usuario:{
+          nome:newUser.nome_completo,
+          telefone:newUser.telefone,
+          email:newUser.email,
+          cpf:newUser.cpf,
+          data_nascimento:newUser.data_nascimento,
+        },
+          endereco:{
+            rua:endereco.rua,
+            bairro:endereco.bairro,
+            numero:endereco.numero,
+            cep:endereco.cep,
+            cidade:endereco.cidade,
+            uf:endereco.UF,
+            complemento:endereco.complemento,
+          },
+          conta:{
+            banco:conta.nome_banco,
+            agencia:conta.agencia,
+            numero_conta:conta.numero_conta,
+            saldo:conta.saldo
+          }
+
+        });
       } else {
         res.status(404).json({
           error: "USR-06",
@@ -124,8 +156,8 @@ export default class UserController {
 
   login = async (req: Request, res: Response) => {
     const cpf = req.body.cpf;
-    let senha = req.body.senha;
-    const usuario: Usuario | null = await userModel.getUserCPF(cpf);
+    var  senha = req.body.senha;
+    const usuario = await userModel.getUserCPF(cpf);
     if (!usuario)
       res.status(500).send({
         error: "LOG-01",

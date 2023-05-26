@@ -53,7 +53,7 @@ export default class UserModel {
     return await prisma.usuario.findMany();
   };
 
-  get = async (id: number) => {
+  get = async (id: number | undefined) => {
     return await prisma.usuario.findUnique({
       where: {
         id: id,

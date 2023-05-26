@@ -8,7 +8,7 @@ const userController = new UserController();
 
 routes.post('/', userController.login);
 // routes.get('/', userController.getAll);
-routes.get('/:id',authentication, userController.get);
+routes.get('/',authentication, userController.get);
 // routes.put('/:id', userController.update);
 routes.delete('/:id', userController.delete);
 

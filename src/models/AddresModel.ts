@@ -27,7 +27,7 @@ export default class AddressModel {
   get = async (id: number) => {
     return await prisma.endereco.findUnique({
       where: {
-        id
+        id_usuario: id
       }
     });
   }
