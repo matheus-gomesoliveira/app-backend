@@ -5,21 +5,6 @@ const prisma = new PrismaClient();
 
 export default class AccountModel{
 
-    // create = async (account:ContaEntrada) => {
-    //     return await prisma.conta_Bancaria.create({
-    //         data: {
-    //             numero_conta: account.numero_conta,
-    //             agencia: account.agencia,
-    //             saldo: 0,
-    //             senha_transacional: account.senha_transacional,
-    //             nome_banco: account.nome_banco,
-    //             status_conta: account.status_conta,
-
-
-    //         }
-    //     });
-        
-    // }
 
     getAll = async () => {
         return await prisma.conta_Bancaria.findMany();
@@ -68,5 +53,16 @@ export default class AccountModel{
                 ...account
             }
         });
+    }
+
+    updateStatusConta = async (id_conta:number) =>{
+        return await prisma.conta_Bancaria.update({
+            where:{
+                id:id_conta
+            },
+            data:{
+                status_conta:"inativa",
+            }
+        })
     }
 }

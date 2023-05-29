@@ -5,21 +5,6 @@ const prisma = new PrismaClient();
 
 export default class AddressModel {
 
-  // create = async (address: EnderecoEntrada) => {
-  //   return await prisma.endereco.create({
-  //     data:{
-  //       cep: address.cep,
-  //       rua: address.rua,
-  //       bairro: address.bairro,
-  //       cidade: address.cidade,
-  //       numero: address.numero,
-  //       UF: address.UF,
-  //       complemento:address.complemento,
-  //     }
-
-  //   });
-  // }
-
   getAll = async () => {
     return await prisma.endereco.findMany();
   }

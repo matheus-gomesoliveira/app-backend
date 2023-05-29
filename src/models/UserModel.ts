@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { FullUsuarioEntrada, ParcUsuarioEntrada } from "dtos/UserDTO";
+import { FullUsuarioEntrada, ParcUsuarioEntrada, UpdateUsuarioDados } from "dtos/UserDTO";
 
 const prisma = new PrismaClient();
 
@@ -69,7 +69,7 @@ export default class UserModel {
     });
   };
 
-  update = async (id: number, usuario: ParcUsuarioEntrada) => {
+  update = async (id: number, usuario: UpdateUsuarioDados) => {
     return await prisma.usuario.update({
       where: {
         id,
@@ -79,6 +79,18 @@ export default class UserModel {
       },
     });
   };
+
+  updateSenha = async (id:number, nova_senha:string) => {
+    return await prisma.usuario.update({
+      where:{
+        id:id
+      },
+      data:{
+        senha:nova_senha
+      }
+    })
+    
+  }
 
   getUserCPF = async (cpf: string) => {
     return await prisma.usuario.findUnique({

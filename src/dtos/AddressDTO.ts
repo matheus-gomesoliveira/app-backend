@@ -1,4 +1,5 @@
 export interface EnderecoEntrada {
+  id: number;
   cep: string;
   rua: string;
   bairro: string;
@@ -6,8 +7,4 @@ export interface EnderecoEntrada {
   numero: number;
   UF: string;
   complemento: string;
-}
-
-export interface EnderecoSaida{
-  id: number
 }

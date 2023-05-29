@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
-import { FullUsuarioEntrada, UsuarioSaida } from "dtos/UserDTO";
+import { FullUsuarioEntrada, UpdateUsuarioDados, UsuarioSaida } from "dtos/UserDTO";
 import UserModel from "models/UserModel";
 import { hash, compare } from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Usuario } from "@prisma/client";
 import AddressModel from "models/AddresModel";
 import AccountModel from "models/AccountModel";
+import { updateUserValidations } from "functions/ValidationFunctions";
+import { error } from "console";
 
 
 const userModel = new UserModel();
@@ -114,28 +116,47 @@ export default class UserController {
     }
   };
 
-  update = async (req: Request, res: Response) => {
+  updateUser = async (req: Request, res: Response) => {
     try {
-      const id: number = parseInt(req.params.id);
-      const updateUser: FullUsuarioEntrada = req.body;
+      const id: number = parseInt(req.app.locals.payload);
+      const usuarioAlvo = await userModel.get(id)
+      const updateUser: UpdateUsuarioDados = req.body
+      const errors = updateUserValidations(updateUser, usuarioAlvo)
+
+      if(errors){
+        if (errors.length > 0) {
+          return res.status(400).send({
+            status: "failed",
+            errors: errors,
+          });
+        }
+      }
+      
       const userUpdated: UsuarioSaida | null = await userModel.update(
         id,
         updateUser
       );
 
       if (userUpdated) {
-        res.status(200).json(userUpdated);
+        res.status(200).json({
+          id:userUpdated.id,
+          nome_completo:userUpdated.nome_completo,
+          telefone:userUpdated.telefone,
+          email:userUpdated.email,
+          cpf:userUpdated.cpf,
+          data_nascimento:userUpdated.data_nascimento, 
+        });
       } else {
         res.status(404).json({
-          error: "USR-06",
-          message: "usuario not found.",
+          error: "ATT-01",
+          message: "Usuario não econtrado",
         });
       }
     } catch (e) {
       console.log("Failed to update usuario", e);
       res.status(500).send({
-        error: "USR-04",
-        message: "Failed to update usuario" + e,
+        error: "ATT-02",
+        message: "Falha ao atualizar dados de usuário" + e,
       });
     }
   };
@@ -182,4 +203,44 @@ export default class UserController {
       });
     }
   };
+
+  updateSenha = async (req: Request, res: Response) => {
+    const id = parseInt(req.app.locals.payload)
+    const usuario = await userModel.get(id)
+    const senhaAtual = req.body.senha_atual
+    const novaSenha = req.body.nova_senha
+    const consfirmarNovaSenha = req.body.confirmar_nova_senha
+      
+    if(usuario){
+      const confirmarSenhaAtual = await compare(senhaAtual, usuario.senha)
+      var regexSenha =/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      const isValidNovaSenha:boolean = regexSenha.test(novaSenha)  
+      
+      if(!confirmarSenhaAtual){
+        res.status(400).send({
+          error:"ATT-10",
+          message:"Senha inserida diferente da senha cadastrada",
+        })
+      }
+      if(!isValidNovaSenha){
+        res.status(400).send({
+          error:"ATT-11",
+          message:"Sua nova senha deve ter no mínimo oito dígitos, uma letra maiúscula, uma letra minúscula, um número, um caractere especial(@$!%*?&)",
+        })
+      }
+      if(!novaSenha === consfirmarNovaSenha){
+        res.status(400).send({
+          error:"ATT-12",
+          message:"Nova senha diferente da confirmação",
+        })
+      }
+    }
+    
+    const senhaDef = novaSenha
+    
+    const contaSenhaUpdate = await userModel.updateSenha(id, senhaDef)
+    res.status(204).send({status:"confirmed", message:"Senha atualizada com sucesso",})
+  
+  
+  }
 }

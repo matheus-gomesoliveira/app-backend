@@ -4,20 +4,6 @@ import AccountModel from "models/AccountModel";
 const accountModel = new AccountModel;
 
 export default class AccountController {
-    // create =async (req: Request, res: Response) => {
-    //     try{
-    //         const account: ContaEntrada = req.body;
-    //         const newAccount : ContaSaida = await accountModel.create(account);
-    //         res.status(201).json(newAccount);
-    //     }   catch(e){
-    //         console.log("Failed to crate account.", e);
-    //         res.status(500).send({
-    //             error: "ACC-01",
-    //             message: "Failed to create account." + e,
-    //         });
-    //     }
-        
-    // };
 
     get = async (req: Request, res: Response) => {
         try{
@@ -82,14 +68,18 @@ export default class AccountController {
 
     delete = async (req: Request, res: Response) => {
         try {
-            const id: number = parseInt(req.params.id);
-            const accountDeleted = await accountModel.delete(id);
-            res.status(204).json(accountDeleted);
+            const id: number = parseInt(req.app.locals.payload);
+            const conta = await accountModel.get(id)
+
+            if(conta){
+                const accountDeleted = await accountModel.updateStatusConta(conta?.id);
+                res.status(204).json({status:"confirmed", message:"conta deletada com sucesso"});    
+            }
         }   catch (e) {
-            console.log("Failed to delete account", e);
+            console.log("Falha ao deletar conta", e);
             res.status(500).send({
                 error: "ACC-05",
-                message: "Failed to delete account",
+                message: "Falha ao deletar conta",
             });
         }
     };

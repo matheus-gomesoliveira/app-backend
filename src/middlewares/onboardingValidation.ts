@@ -14,7 +14,7 @@ export const validacaoUsuario = async (
   const conta: ContaEntrada = req.body.usuario.conta_bancaria;
   const errors = validacaoDadosUsuario(usuario, endereco, conta);
   if (errors.length > 0) {
-    return res.status(401).send({
+    return res.status(400).send({
       status: "failed",
       errors: errors,
     });

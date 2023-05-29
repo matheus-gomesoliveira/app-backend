@@ -8,6 +8,6 @@ const accountController = new AccountController;
 // routes.get('/', accountController.getAll);
 routes.get('/', authentication, accountController.getBalance);
 routes.put('/:id', accountController.updateBalance);
-routes.delete('/:id', accountController.delete);
+routes.delete('/', authentication, accountController.delete);
 
 export default routes;

@@ -20,9 +20,16 @@ export interface ParcUsuarioEntrada {
 }
 
 export interface UsuarioSaida {
+  id:number
   nome_completo: string;
   telefone: string;
   email: string;
   cpf: string;
   data_nascimento: Date;
+}
+
+export interface UpdateUsuarioDados {
+  nome_completo:string;
+  telefone:string;
+  email:string;  
 }

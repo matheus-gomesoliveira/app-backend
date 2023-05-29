@@ -9,7 +9,8 @@ const userController = new UserController();
 routes.post('/', userController.login);
 // routes.get('/', userController.getAll);
 routes.get('/',authentication, userController.get);
-// routes.put('/:id', userController.update);
+routes.put('/', authentication, userController.updateUser);
+routes.put('/password', authentication, userController.updateSenha)
 routes.delete('/:id', userController.delete);
 
 export default routes;
