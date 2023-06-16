@@ -82,31 +82,33 @@ export default class TransferController {
                   error: "TRA-07",
                   message: "o valor da transferência inválido",
                 });
-              }
-              if (conta_origem.id != conta_destino.id) {
-                transferencia.id_destinatario = conta_destino.id;
-                transferencia.id_remetente = conta_origem.id;
-                transferencia.valor = req.body.valor;
-                transferencia.descricao = req.body.descricao;
-                transferencia.status = "confirmada";
-
-                const newTransfer = await transferModel.transfer(
-                  transferencia,
-                  conta_origem,
-                  conta_destino
-                );
-
-                res.status(201).json({
-                  status:"sucesso",
-                  message: "sua transferência foi realizada com sucesso"
-                });
               } else {
-                res.status(401).send({
-                  error: "TRA-04",
-                  message:
-                    "Não podem ser realizadas transferências para a mesma conta de origem",
-                });
-              }
+                if (conta_origem.id != conta_destino.id) {
+                  transferencia.id_destinatario = conta_destino.id;
+                  transferencia.id_remetente = conta_origem.id;
+                  transferencia.valor = req.body.valor;
+                  transferencia.descricao = req.body.descricao;
+                  transferencia.status = "confirmada";
+  
+                  await transferModel.transfer(
+                    transferencia,
+                    conta_origem,
+                    conta_destino
+                  );
+  
+                  res.status(201).json({
+                    status:"sucesso",
+                    message: "sua transferência foi realizada com sucesso"
+                  });
+                } else {
+                  res.status(401).send({
+                    error: "TRA-04",
+                    message:
+                      "Não podem ser realizadas transferências para a mesma conta de origem",
+                  });
+                }
+              } 
+              
             } else {
               res.status(401).send({
                 error: "TRA-03",

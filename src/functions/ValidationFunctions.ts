@@ -2,6 +2,7 @@ import { Usuario } from "@prisma/client";
 import { ContaEntrada } from "dtos/AccountDTO";
 import { EnderecoEntrada } from "dtos/AddressDTO";
 import { FullUsuarioEntrada, UpdateUsuarioDados } from "dtos/UserDTO";
+import { hash, compare } from "bcrypt";
 
 //VERIFICAR NOME
 export function validacaoNome(nome: string): boolean {
@@ -196,75 +197,152 @@ export function validacaoDadosUsuario(
 
 //UPDATE VALIDATIONS//
 
-export function updateUserValidations(updateUser: UpdateUsuarioDados, usuarioAlvo: Usuario | null){
-  if(usuarioAlvo){
-    var arrErrors = []
-    
-    if(updateUser.nome_completo === usuarioAlvo.nome_completo){
-      arrErrors.push({error:"ATT-06",message:"Novo nome não pode ser igual ao atual",})
+export function updateUserValidations(
+  updateUser: UpdateUsuarioDados,
+  usuarioAlvo: Usuario | null
+) {
+  if (usuarioAlvo) {
+    var arrErrors = [];
+
+    if (updateUser.nome_completo === usuarioAlvo.nome_completo) {
+      arrErrors.push({
+        error: "ATT-06",
+        message: "Novo nome não pode ser igual ao atual",
+      });
     }
 
-    if(updateUser.telefone === usuarioAlvo.telefone){
-      arrErrors.push({error:"ATT-07",message:"Novo telefone não pode ser igual ao atual",})          
+    if (updateUser.telefone === usuarioAlvo.telefone) {
+      arrErrors.push({
+        error: "ATT-07",
+        message: "Novo telefone não pode ser igual ao atual",
+      });
     }
 
-    if(updateUser.email === usuarioAlvo.email){
-      arrErrors.push({error:"ATT-08",message:"Novo email não pode ser igual ao atual",})
+    if (updateUser.email === usuarioAlvo.email) {
+      arrErrors.push({
+        error: "ATT-08",
+        message: "Novo email não pode ser igual ao atual",
+      });
     }
 
-    if(updateUser.nome_completo != ""){
-      var regexNome = /^[[a-zA-Z\u00C0-\u00FF ]{3,}(?: [a-zA-Z\u00C0-\u00FF ]+){1,}$/;
+    if (updateUser.nome_completo != "") {
+      var regexNome =
+        /^[[a-zA-Z\u00C0-\u00FF ]{3,}(?: [a-zA-Z\u00C0-\u00FF ]+){1,}$/;
       if (!regexNome.test(updateUser.nome_completo)) {
-        arrErrors.push({error: "ATT-03", message: "Insira seu nome completo"})
+        arrErrors.push({
+          error: "ATT-03",
+          message: "Insira seu nome completo",
+        });
       }
     } else {
-      updateUser.nome_completo = usuarioAlvo?.nome_completo
+      updateUser.nome_completo = usuarioAlvo?.nome_completo;
     }
-    
-    if(updateUser.email != ""){
+
+    if (updateUser.email != "") {
       var regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if(!regexEmail.test(updateUser.email)){
-        arrErrors.push({ error: "ATT-O4", message: "Email inválido" })
+      if (!regexEmail.test(updateUser.email)) {
+        arrErrors.push({ error: "ATT-O4", message: "Email inválido" });
       }
     } else {
-      updateUser.email = usuarioAlvo.email
+      updateUser.email = usuarioAlvo.email;
     }
 
-    if(updateUser.telefone != ""){
-      var regexTelefone = /^(1[1-9]|[2-9][0-9])\d{9}$/
-      if(!regexTelefone.test(updateUser.telefone)){
-        arrErrors.push({ error: "ATT-O5", message: "Telefone inválido" })
+    if (updateUser.telefone != "") {
+      var regexTelefone = /^(1[1-9]|[2-9][0-9])\d{9}$/;
+      if (!regexTelefone.test(updateUser.telefone)) {
+        arrErrors.push({ error: "ATT-O5", message: "Telefone inválido" });
       }
     } else {
-      updateUser.telefone = usuarioAlvo.telefone
+      updateUser.telefone = usuarioAlvo.telefone;
     }
 
-    return arrErrors
+    return arrErrors;
   }
-
 }
 
 //VALIDACAO UPDATE ENDERECO//
 
-export function updateAddressValidations(enderecoUpdate:EnderecoEntrada, enderecoAlvo: EnderecoEntrada | null ){
-  if(enderecoAlvo){
+export function updateAddressValidations(
+  enderecoUpdate: EnderecoEntrada,
+  enderecoAlvo: EnderecoEntrada | null
+) {
+  if (enderecoAlvo) {
     var regexCEP = /^\d{8}$/;
-      if(!regexCEP.test(enderecoUpdate.cep)){
-            return{
-              error:"ATT-08",
-              message:"Seu CEP deve conter apenas 8 caractéres alfanuméricos",
-            }
-          }
-    if(enderecoUpdate.cep == "")
-      return {message:"Todos os dados do novo endereço devem estar preenchidos"}
-    if(enderecoUpdate.rua == "")
-      return {message:"Todos os dados do novo endereço devem estar preenchidos"}
-    if(enderecoUpdate.bairro == "")
-      return {message:"Todos os dados do novo endereço devem estar preenchidos"}
-    if(enderecoUpdate.cidade == "")
-      return {message:"Todos os dados do novo endereço devem estar preenchidos"}
-    if(enderecoUpdate.numero == null)
-      return {message:"Todos os dados do novo endereço devem estar preenchidos"}
+    if (!regexCEP.test(enderecoUpdate.cep)) {
+      return {
+        error: "ATT-08",
+        message: "Seu CEP deve conter apenas 8 caractéres alfanuméricos",
+      };
+    }
+    if (enderecoUpdate.cep == "")
+      return {
+        message: "Todos os dados do novo endereço devem estar preenchidos",
+      };
+    if (enderecoUpdate.rua == "")
+      return {
+        message: "Todos os dados do novo endereço devem estar preenchidos",
+      };
+    if (enderecoUpdate.bairro == "")
+      return {
+        message: "Todos os dados do novo endereço devem estar preenchidos",
+      };
+    if (enderecoUpdate.cidade == "")
+      return {
+        message: "Todos os dados do novo endereço devem estar preenchidos",
+      };
+    if (enderecoUpdate.numero == null)
+      return {
+        message: "Todos os dados do novo endereço devem estar preenchidos",
+      };
+    if (enderecoUpdate.UF == null)
+      return {
+        message: "Todos os dados do novo endereço devem estar preenchidos",
+      };
   }
+}
 
+export async function novaSenhaValidacao(
+  usuario: Usuario | null,
+  senhaAtual: string,
+  novaSenha: string,
+  confirmarNovaSenha: string
+) {
+  if (usuario) {
+    var arrErrors = [];
+    const confirmarSenhaAtual = await compare(senhaAtual, usuario.senha);
+    var regexSenha =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const isValidNovaSenha: boolean = regexSenha.test(novaSenha);
+
+    if (!confirmarSenhaAtual) {
+      arrErrors.push({
+        error: "ATT-10",
+        message: "Senha inserida diferente da senha cadastrada",
+      });
+    }
+
+    if (!isValidNovaSenha) {
+      arrErrors.push({
+        error: "ATT-11",
+        message:
+          "Sua nova senha deve ter no mínimo oito dígitos, uma letra maiúscula, uma letra minúscula, um número, um caractere especial(@$!%*?&)",
+      });
+    }
+
+    if (!(novaSenha === confirmarNovaSenha)) {
+      arrErrors.push({
+        error: "ATT-12",
+        message: "Nova senha diferente da confirmação",
+      });
+    }
+
+    if (novaSenha == senhaAtual) {
+      arrErrors.push({
+        error: "ATT-13",
+        message: "Nova senha deve ser diferente da atual",
+      });
+    }
+
+    return arrErrors;
+  }
 }

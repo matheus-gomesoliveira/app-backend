@@ -58,7 +58,7 @@ model Transferencia {
   destinatario       Conta_Bancaria  @relation("destinatario", fields: [id_destinatario], references: [id])
   id_remetente       Int             
   id_destinatario    Int             
-  data_transferencia DateTime        @default(now())
+  data_transferencia DateTime         @default(dbgenerated("timezone('UTC-03:00', now())"))
   valor              Decimal
   descricao          String
   status             status_transfer

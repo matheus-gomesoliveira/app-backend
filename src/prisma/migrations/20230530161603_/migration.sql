@@ -55,7 +55,7 @@ CREATE TABLE "Transferencia" (
     "id" SERIAL NOT NULL,
     "id_remetente" INTEGER NOT NULL,
     "id_destinatario" INTEGER NOT NULL,
-    "data_transferencia" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "data_transferencia" TIMESTAMP(3) NOT NULL DEFAULT timezone('UTC-03:00', now()),
     "valor" DECIMAL(65,30) NOT NULL,
     "descricao" TEXT NOT NULL,
     "status" "status_transfer" NOT NULL,
