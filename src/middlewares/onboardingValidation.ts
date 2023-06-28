@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { validacaoDadosUsuario } from "functions/ValidationFunctions"
+import { validacaoDadosUsuario } from "functions/ValidationFunctions";
 import { FullUsuarioEntrada } from "dtos/UserDTO";
 import { EnderecoEntrada } from "dtos/AddressDTO";
 import { ContaEntrada } from "dtos/AccountDTO";
@@ -9,6 +9,7 @@ export const validacaoUsuario = async (
   res: Response,
   next: NextFunction
 ) => {
+  console.log(req.body);
   const usuario: FullUsuarioEntrada = req.body.usuario;
   const endereco: EnderecoEntrada = req.body.usuario.endereco;
   const conta: ContaEntrada = req.body.usuario.conta_bancaria;

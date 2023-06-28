@@ -29,7 +29,7 @@ CREATE TABLE "Endereco" (
     "bairro" TEXT NOT NULL,
     "cidade" TEXT NOT NULL,
     "numero" INTEGER NOT NULL,
-    "UF" VARCHAR(2) NOT NULL,
+    "uf" VARCHAR(2) NOT NULL,
     "complemento" TEXT NOT NULL,
 
     CONSTRAINT "Endereco_pkey" PRIMARY KEY ("id")

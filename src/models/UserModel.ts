@@ -32,7 +32,7 @@ export default class UserModel {
             bairro: endereco.bairro,
             cidade: endereco.cidade,
             numero: endereco.numero,
-            UF: endereco.UF,
+            uf: endereco.uf,
             complemento: endereco.complemento,
           },
         },

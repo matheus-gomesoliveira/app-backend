@@ -24,7 +24,7 @@ export const authentication = async (
   const usuario: Usuario | null = await userModel.get(id);
 
   if (!usuario)
-    res.status(500).send({
+    res.status(401).send({
       error: "LOG-01",
       message: "Não autorizado",
     });

@@ -32,8 +32,8 @@ model Endereco {
   rua         String
   bairro      String
   cidade      String
-  numero      Int
-  UF          String  @db.VarChar(2)
+  numero      String
+  uf          String  @db.VarChar(2)
   complemento String
 }
 

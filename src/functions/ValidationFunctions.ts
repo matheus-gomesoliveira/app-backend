@@ -109,7 +109,7 @@ function validacaoSenha(senha: string): boolean {
   return true;
 }
 
-//VERIFICACAO DE ENDEREÇO//
+//VERIFICACAO DE CEP//
 
 function validacaoCEP(cep: string): boolean {
   var regexCEP = /^\d{8}$/;
@@ -117,6 +117,11 @@ function validacaoCEP(cep: string): boolean {
     return false;
   }
   return true;
+}
+
+function validacaoNumero(num: string): boolean {
+  var regexNum = /^\d+(-[a-zA-Z]+)?$/;
+  return regexNum.test(num);
 }
 
 //VERIFICAÇÃO CONTA//
@@ -181,14 +186,22 @@ export function validacaoDadosUsuario(
   if (!validacaoCEP(endereco.cep)) {
     arrErrors.push({
       error: "RE0-06",
-      message: "Erro: O CEP deve respeitar o formato 12345-123",
+      message: "O CEP deve respeitar o formato 12345-123",
+    });
+  }
+
+  if (!validacaoNumero(endereco.numero)) {
+    arrErrors.push({
+      error: "REG-08",
+      message:
+        "O número do endereço deve possuir só números e letras após o hífen",
     });
   }
 
   if (!validacaoSenhaTransacional(conta_bancaria.senha_transacional)) {
     arrErrors.push({
       error: "REG-07",
-      message: "Erro: Sua senha deve ter quatro dígitos númericos",
+      message: "Sua senha deve ter quatro dígitos númericos",
     });
   }
 
@@ -276,26 +289,32 @@ export function updateAddressValidations(
     }
     if (enderecoUpdate.cep == "")
       return {
+        error: "ATT-01",
         message: "Todos os dados do novo endereço devem estar preenchidos",
       };
     if (enderecoUpdate.rua == "")
       return {
+        error: "ATT-02",
         message: "Todos os dados do novo endereço devem estar preenchidos",
       };
     if (enderecoUpdate.bairro == "")
       return {
+        error: "ATT-03",
         message: "Todos os dados do novo endereço devem estar preenchidos",
       };
     if (enderecoUpdate.cidade == "")
       return {
+        error: "ATT-04",
         message: "Todos os dados do novo endereço devem estar preenchidos",
       };
-    if (enderecoUpdate.numero == null)
+    if (enderecoUpdate.numero == "")
       return {
+        error: "ATT-05",
         message: "Todos os dados do novo endereço devem estar preenchidos",
       };
-    if (enderecoUpdate.UF == null)
+    if (enderecoUpdate.uf == "")
       return {
+        error: "ATT-06",
         message: "Todos os dados do novo endereço devem estar preenchidos",
       };
   }

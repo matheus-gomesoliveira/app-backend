@@ -80,7 +80,7 @@ export default class UserController {
             numero: endereco.numero,
             cep: endereco.cep,
             cidade: endereco.cidade,
-            uf: endereco.UF,
+            uf: endereco.uf,
             complemento: endereco.complemento,
           },
           conta: {
@@ -90,6 +90,7 @@ export default class UserController {
             saldo: conta.saldo,
           },
         });
+        console.log()
       } else {
         res.status(404).json({
           error: "USR-06",
@@ -182,14 +183,14 @@ export default class UserController {
     var senha = req.body.senha;
     const usuario = await userModel.getUserCPF(cpf);
     if (!usuario)
-      res.status(500).send({
+      res.status(400).send({
         error: "LOG-01",
         message: "CPF ou senha inválidos",
       });
     else {
       const senhaexiste = await compare(senha, usuario.senha);
       if (!senhaexiste) {
-        res.status(500).send({
+        res.status(400).send({
           error: "LOG-01",
           message: "CPF ou senha inválidos",
         });
@@ -212,7 +213,6 @@ export default class UserController {
       const novaSenha = req.body.nova_senha;
       const confirmarNovaSenha = req.body.confirmar_nova_senha;
 
-      
       if (usuario) {
         const errors = await novaSenhaValidacao(
           usuario,
@@ -229,12 +229,10 @@ export default class UserController {
           } else {
             const senhaDef = await hash(novaSenha, 8);
             await userModel.updateSenha(id, senhaDef);
-            res
-              .status(200)
-              .send({
-                status: "confirmed",
-                message: "Senha atualizada com sucesso",
-              });
+            res.status(200).send({
+              status: "confirmed",
+              message: "Senha atualizada com sucesso",
+            });
           }
         }
       }
