@@ -1,68 +1,76 @@
-import { PrismaClient } from '@prisma/client';
-import { ContaEntrada, ContaSaida } from 'dtos/AccountDTO';
+import { PrismaClient } from "@prisma/client";
+import { ContaEntrada, ContaSaida } from "dtos/AccountDTO";
 
 const prisma = new PrismaClient();
 
-export default class AccountModel{
+export default class AccountModel {
+  getAll = async () => {
+    return await prisma.conta_Bancaria.findMany();
+  };
 
+  get = async (id: number) => {
+    return await prisma.conta_Bancaria.findUnique({
+      where: {
+        id_usuario: id,
+      },
+    });
+  };
 
-    getAll = async () => {
-        return await prisma.conta_Bancaria.findMany();
-    };
+  getConta = async (id: number) => {
+    return await prisma.conta_Bancaria.findFirst({
+      where: {
+        id_usuario: id,
+        status_conta: "ativa",
+      },
+    });
+  };
 
-    get = async (id: number) => {
-        return await prisma.conta_Bancaria.findUnique({
-            where: {
-                id_usuario: id,
-            }
-        });
-    }
+  getNumeroConta = async (numero_conta: number) => {
+    return await prisma.conta_Bancaria.findFirst({
+      where: {
+        numero_conta: numero_conta,
+      },
+    });
+  };
 
-    getConta = async (id: number) => {
-        return await prisma.conta_Bancaria.findFirst({
-            where: {
-                id_usuario: id,
-                status_conta: 'ativa'
-            }
-        });
-    }
+  delete = async (id: number) => {
+    return await prisma.conta_Bancaria.delete({
+      where: {
+        id,
+      },
+    });
+  };
 
-    getNumeroConta = async (numero_conta: number) =>{
-        return await prisma.conta_Bancaria.findFirst({
-            where:{
-                numero_conta: numero_conta
-            }
-        })
-    }
-    
+  update = async (id_conta:number, data:any) => {
+    return await prisma.conta_Bancaria.update({
+        where:{
+            id:id_conta
+        },
+        data:{
+            ...data
+        }
+    })
+  }
 
-    delete = async (id: number) => {
-        return await prisma.conta_Bancaria.delete({
-            where: {
-                id
-            }
-        });
-    }
+  updateSenha = async (id_conta:number | undefined, nova_senha:string) => {
+    return await prisma.conta_Bancaria.update({
+      where:{
+        id:id_conta
+      },
+      data:{
+        senha_transacional:nova_senha
+      }
+    })  
+  }
 
-    update = async (id:number, account: ContaEntrada) => {
-        return await prisma.conta_Bancaria.update({
-            where: {
-                id
-            },
-            data: {
-                ...account
-            }
-        });
-    }
-
-    updateStatusConta = async (id_conta:number) =>{
-        return await prisma.conta_Bancaria.update({
-            where:{
-                id:id_conta
-            },
-            data:{
-                status_conta:"inativa",
-            }
-        })
-    }
+  updateStatusConta = async (id_conta: number) => {
+    return await prisma.conta_Bancaria.update({
+      where: {
+        id: id_conta,
+      },
+      data: {
+        status_conta: "inativa",
+      },
+    });
+  };
 }

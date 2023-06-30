@@ -38,19 +38,19 @@ export default class UserController {
           usuario.conta_bancaria.senha_transacional,
           8
         );
+        const newUser: UsuarioSaida = await userModel.create(usuario);
+        res.status(201).json({
+          status: "Cadastro realizado com sucesso",
+          message: "Bem-vindo ao RubBank, " + newUser.nome_completo,
+        });
       } else {
         res.status(500).send({
           error: "REG-08",
           message: "Conta de usuário já existe",
         });
       }
-      const newUser: UsuarioSaida = await userModel.create(usuario);
-      res.status(201).json({
-        status: "Cadastro realizado com sucesso",
-        message: "Bem-vindo ao RubBank, " + newUser.nome_completo,
-      });
     } catch (e) {
-      console.log("Failed to create usuario", e);
+      console.log("Failed to create user", e);
       res.status(500).send({
         error: "REG-00",
         message: "Falha ao criar usuário " + e,

@@ -7,7 +7,7 @@ const accountController = new AccountController;
 
 // routes.get('/', accountController.getAll);
 routes.get('/', authentication, accountController.getBalance);
-routes.put('/:id', accountController.updateBalance);
 routes.delete('/', authentication, accountController.delete);
+routes.put('/transaction-password', authentication, accountController.updateTransactionPassword)
 
 export default routes;

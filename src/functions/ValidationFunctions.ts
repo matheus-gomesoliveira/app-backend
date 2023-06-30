@@ -365,3 +365,43 @@ export async function novaSenhaValidacao(
     return arrErrors;
   }
 }
+
+export async function novaSenhaTransacionalValidacao(
+  senha:string | undefined,
+  senha_atual:string,
+  nova_senha:string,
+  confirmar_nova_senha: string
+){
+  var arrErrors = [];
+  const regexTransactionPassword = /^\d{4}$/
+  const isValidTransactionPassword = regexTransactionPassword.test(nova_senha)
+
+  if(!isValidTransactionPassword) {
+    arrErrors.push({
+      error: "TRP-01",
+      message: "Sua senha deve ter apenas 4 dígitos númericos.",
+    });
+  }
+
+  if(nova_senha !== confirmar_nova_senha){
+    arrErrors.push({
+      error:"TRP-02",
+      message:"As senhas devem coincidir."
+    })
+  }
+
+  if(senha !== senha_atual){
+    arrErrors.push({
+      error:"TRP-03",
+      message:"Senha atual inválida"
+    })
+  }
+
+  if(senha === nova_senha){
+    arrErrors.push({
+      error:"TRP-04",
+      message:"Sua nova senha deve ser diferente da atual"
+    })
+  }
+  return arrErrors
+}

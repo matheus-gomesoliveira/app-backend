@@ -13,7 +13,7 @@ const app = express();
 
 app.use(express.json());
 app.get("/", (req, res) => {
-  return res.send("Hello Fabio");
+  return res.send("Hello World");
 });
 
 app.use("/account", accountRoutes)
