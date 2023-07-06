@@ -95,7 +95,7 @@ export default class TransferController {
                     conta_origem,
                     conta_destino
                   );
-  
+
                   res.status(201).json({
                     status:"sucesso",
                     message: "sua transferência foi realizada com sucesso"
@@ -206,14 +206,54 @@ export default class TransferController {
     try {
       const id_usuario_alvo = parseInt(req.app.locals.payload)
       const conta_alvo = await accountModel.getConta(id_usuario_alvo)
+
+
+      const tipo = (req.query.type)?.toString().toUpperCase() || 'TUDO'
+      const pagina = Number(req.query.page) || 1
+
+
+      const dataHoje = new Date();
+      const fuso = dataHoje.getTimezoneOffset() * 60000;
+      const dataFuso = new Date(dataHoje.getTime() - fuso);
+      const dataHojeFormatada = dataFuso.toISOString().slice(0,10)
+
+      function dataFormatada(data: string): string {
+        const splits = data.split('/');
+        const dataFormatada = `${splits[2]}-${splits[1]}-${splits[0]}`;
+        return dataFormatada;
+      }
+
+      const take = 8
+      const skip = (pagina-1)*take
+      const ordem = (req.query.order)?.toString().toLowerCase() as 'asc'| 'desc' || 'asc'
+      const data_inicio = req.query.start_date ? new Date(dataFormatada(req.query.start_date as string)) : new Date('2023-01-01');
+      const data_final = req.query.end_date ? new Date(dataFormatada(req.query.end_date as string)) : new Date(dataHojeFormatada)
+
+      const isIn:boolean = (tipo === "ENTRADA") 
+      const isOut:boolean = (tipo === "SAIDA")
+      
+      let extrato
+      let total_transferencias
+      let total_paginas
+
       if(conta_alvo){
         const id_conta_alvo = conta_alvo.id
-        const extrato = await transferModel.getAllTransfers(id_conta_alvo) 
+
+        if(isIn){
+           extrato = await transferModel.getInTransfers(id_conta_alvo, skip, take, ordem, data_inicio, data_final) 
+           total_transferencias = await transferModel.totalInTransfers(id_conta_alvo, data_inicio, data_final) 
+           total_paginas = Math.ceil(total_transferencias/take)                    
+        } else if(isOut){
+           extrato = await transferModel.getOutTransfers(id_conta_alvo, skip, take, ordem, data_inicio, data_final) 
+           total_transferencias = await transferModel.totalOutTransfers(id_conta_alvo, data_inicio, data_final) 
+           total_paginas = Math.ceil(total_transferencias/take)   
+        } else {
+           extrato = await transferModel.getAllTransfers(id_conta_alvo, skip, take, ordem, data_inicio, data_final) 
+           total_transferencias = await transferModel.totalTransfers(id_conta_alvo, data_inicio, data_final) 
+           total_paginas = Math.ceil(total_transferencias/take)
+        }
 
         const arr_extrato =[]
-
-        /*VARIAVEL FORA*/
-        var conta_origem : ContaEntrada
       
       for(const transferencia of extrato){
 
@@ -236,20 +276,46 @@ export default class TransferController {
         }
 
 
-        const tranferencia_tratada = {
+        function formatDate(dateString: string): string {
+          const parts = dateString.split('-');
+          const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+          return formattedDate;
+        }
+
+        const dia = formatDate(transferencia.data_transferencia.toISOString().slice(0, 10))
+        const hora = transferencia.data_transferencia.toISOString().slice(11, 16)
+
+
+        const transferencia_tratada = {
           id_transferencia:transferencia.id,
           conta_origem:conta_origem?.numero_conta,
           conta_destino:conta_destino?.numero_conta,
-          data_transferencia:transferencia.data_transferencia,
+          data_transferencia:{
+            dia:dia,
+            hora:hora
+          },
           valor:transferencia.valor,
           descricao:transferencia.descricao,
           status:transferencia.status,
           tipo:tipo_transfer,
         }
-        arr_extrato.push(tranferencia_tratada)
+        arr_extrato.push(transferencia_tratada)
        }
-       
-        res.status(201).send(arr_extrato)
+
+        if(arr_extrato.length != 0){
+          res.status(200).send({
+            transferencias:arr_extrato,
+            paginas:{
+              pagina: pagina,
+              total:total_paginas
+            }
+          })
+        } else {
+          res.status(200).send({
+            message:'não há transferências referentes á esse periodo'
+          })
+        }
+
       }
 
     } catch (e) {

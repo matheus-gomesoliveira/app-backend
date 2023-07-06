@@ -5,6 +5,7 @@ import {
   novaSenhaTransacionalValidacao,
   novaSenhaValidacao,
 } from "functions/ValidationFunctions";
+import { hash } from "bcrypt";
 const accountModel = new AccountModel();
 
 export default class AccountController {
@@ -52,24 +53,26 @@ export default class AccountController {
       const senha_atual = req.body.senha_atual;
       const nova_senha = req.body.nova_senha;
       const confirmar_nova_senha = req.body.confirmar_nova_senha;
-      const errors = await novaSenhaTransacionalValidacao(
-        senha,
-        senha_atual,
-        nova_senha,
-        confirmar_nova_senha
-      );
-
-      if (errors) {
-        if (errors?.length > 0) {
-          res.status(400).send({
-            status: "failed",
-            errors: errors,
-          });
-        } else {
-          if (conta) await accountModel.updateSenha(id_conta, nova_senha);
-          res.status(200).send({
-            message: "Senha transacional atualizada com sucesso.",
-          });
+      if(senha){
+        const errors = await novaSenhaTransacionalValidacao(
+          senha,
+          senha_atual,
+          nova_senha,
+          confirmar_nova_senha
+        );
+        if (errors) {
+          if (errors?.length > 0) {
+            res.status(400).send({
+              status: "failed",
+              errors: errors,
+            });
+          } else {
+            const senha_def = await hash(nova_senha,8)
+            if (conta) await accountModel.updateSenha(id_conta, senha_def);
+            res.status(200).send({
+              message: "Senha transacional atualizada com sucesso.",
+            });
+          }
         }
       }
     } catch (e) {

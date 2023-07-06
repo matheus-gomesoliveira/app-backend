@@ -367,13 +367,14 @@ export async function novaSenhaValidacao(
 }
 
 export async function novaSenhaTransacionalValidacao(
-  senha:string | undefined,
+  senha:string ,
   senha_atual:string,
   nova_senha:string,
   confirmar_nova_senha: string
 ){
   var arrErrors = [];
   const regexTransactionPassword = /^\d{4}$/
+  const confirmarSenhaAtual = await compare(senha_atual, senha)
   const isValidTransactionPassword = regexTransactionPassword.test(nova_senha)
 
   if(!isValidTransactionPassword) {
@@ -390,7 +391,7 @@ export async function novaSenhaTransacionalValidacao(
     })
   }
 
-  if(senha !== senha_atual){
+  if(!confirmarSenhaAtual){
     arrErrors.push({
       error:"TRP-03",
       message:"Senha atual inválida"

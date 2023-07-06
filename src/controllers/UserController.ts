@@ -90,7 +90,6 @@ export default class UserController {
             saldo: conta.saldo,
           },
         });
-        console.log()
       } else {
         res.status(404).json({
           error: "USR-06",
@@ -244,4 +243,34 @@ export default class UserController {
       });
     }
   };
+
+  getCpfEmailPhone = async (req: Request, res: Response)=>{
+    try {
+      const usuario = req.body
+      const usuarioCPFExiste: boolean =
+        (await userModel.getUserCPF(usuario.cpf)) == null;
+      const usuarioEmailExiste: boolean =
+        (await userModel.getUserEmail(usuario.email)) == null;
+      const usuarioTelefoneExiste: boolean =
+        (await userModel.getUserTelefone(usuario.telefone)) == null;
+
+      if(!usuarioCPFExiste || !usuarioEmailExiste || !usuarioTelefoneExiste){
+        res.status(400).send({
+          error: "REG-08",
+          message: "Usuário já cadastrado",
+        });
+      } else {
+        res.status(200).json({
+          message:'ok'
+        })
+      }
+    } catch (e) {
+      console.log(e)
+      res.status(500).send({
+        error: "GET-01",
+        message: "Não foi recuperar os dados",
+      });
+    }
+    }
 }
+
