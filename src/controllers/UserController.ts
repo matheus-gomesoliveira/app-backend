@@ -23,11 +23,11 @@ export default class UserController {
     try {
       const usuario: FullUsuarioEntrada = req.body.usuario;
       const usuarioCPFExiste: boolean =
-        (await userModel.getUserCPF(usuario.cpf)) == null;
+        (await userModel.getUserCPF(usuario.cpf)) ===null;
       const usuarioEmailExiste: boolean =
-        (await userModel.getUserEmail(usuario.email)) == null;
+        (await userModel.getUserEmail(usuario.email)) ===null;
       const usuarioTelefoneExiste: boolean =
-        (await userModel.getUserTelefone(usuario.telefone)) == null;
+        (await userModel.getUserTelefone(usuario.telefone)) ===null;
 
       if (usuarioCPFExiste && usuarioEmailExiste && usuarioTelefoneExiste) {
         usuario.data_nascimento = new Date(
@@ -39,8 +39,10 @@ export default class UserController {
           8
         );
         const newUser: UsuarioSaida = await userModel.create(usuario);
+        const id = newUser.id
         res.status(201).json({
           status: "Cadastro realizado com sucesso",
+          id: id,
           message: "Bem-vindo ao RubBank, " + newUser.nome_completo,
         });
       } else {
@@ -198,6 +200,7 @@ export default class UserController {
         expiresIn: "1d",
       });
       return res.status(201).send({
+        id:usuario.id,
         mensagem: "Login efetuado com sucesso",
         token: token,
       });
@@ -248,11 +251,11 @@ export default class UserController {
     try {
       const usuario = req.body
       const usuarioCPFExiste: boolean =
-        (await userModel.getUserCPF(usuario.cpf)) == null;
+        (await userModel.getUserCPF(usuario.cpf)) ===null;
       const usuarioEmailExiste: boolean =
-        (await userModel.getUserEmail(usuario.email)) == null;
+        (await userModel.getUserEmail(usuario.email)) ===null;
       const usuarioTelefoneExiste: boolean =
-        (await userModel.getUserTelefone(usuario.telefone)) == null;
+        (await userModel.getUserTelefone(usuario.telefone)) ===null;
 
       if(!usuarioCPFExiste || !usuarioEmailExiste || !usuarioTelefoneExiste){
         res.status(400).send({

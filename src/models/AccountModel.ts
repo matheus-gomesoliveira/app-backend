@@ -26,9 +26,10 @@ export default class AccountModel {
   };
 
   getNumeroConta = async (numero_conta: number) => {
+
     return await prisma.conta_Bancaria.findFirst({
       where: {
-        numero_conta: numero_conta,
+        numero_conta: numero_conta
       },
     });
   };

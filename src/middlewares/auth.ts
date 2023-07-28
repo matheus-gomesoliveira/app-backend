@@ -20,6 +20,7 @@ export const authentication = async (
   }
   const token = auth.split(" ")[1];
 
+
   const { id } = jwt.verify(token, process.env.SECRET_JWT ?? "") as JwtPayLoad;
   const usuario: Usuario | null = await userModel.get(id);
 

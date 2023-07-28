@@ -6,7 +6,9 @@ import {
   novaSenhaValidacao,
 } from "functions/ValidationFunctions";
 import { hash } from "bcrypt";
+import UserModel from "models/UserModel";
 const accountModel = new AccountModel();
+const userModel = new UserModel();
 
 export default class AccountController {
   get = async (req: Request, res: Response) => {
@@ -48,12 +50,12 @@ export default class AccountController {
     try {
       const id_usuario: number = parseInt(req.app.locals.payload);
       const conta = await accountModel.get(id_usuario);
-      const id_conta = conta?.id       
+      const id_conta = conta?.id;
       const senha = conta?.senha_transacional;
       const senha_atual = req.body.senha_atual;
       const nova_senha = req.body.nova_senha;
       const confirmar_nova_senha = req.body.confirmar_nova_senha;
-      if(senha){
+      if (senha) {
         const errors = await novaSenhaTransacionalValidacao(
           senha,
           senha_atual,
@@ -67,7 +69,7 @@ export default class AccountController {
               errors: errors,
             });
           } else {
-            const senha_def = await hash(nova_senha,8)
+            const senha_def = await hash(nova_senha, 8);
             if (conta) await accountModel.updateSenha(id_conta, senha_def);
             res.status(200).send({
               message: "Senha transacional atualizada com sucesso.",
@@ -152,6 +154,77 @@ export default class AccountController {
       res.status(500).send({
         error: "ACC-04",
         message: "Failed to update account" + e,
+      });
+    }
+  };
+
+  getDestinyAccountData = async (req: Request, res: Response) => {
+    try {
+      var usuario_destino;
+      var conta_destino;
+      var numero_conta;
+      var cpf;
+
+      const identificacao: string = req.body.identificacao;
+
+      if (identificacao.length ===11) {
+        cpf = identificacao;
+        usuario_destino = await userModel.getUserCPF(cpf);
+
+        if (usuario_destino) {
+          conta_destino = await accountModel.getConta(usuario_destino.id);
+
+          if (conta_destino) {
+            res.status(200).send({
+              dados: {
+                nome: usuario_destino?.nome_completo,
+                numero_conta: String(conta_destino.id),
+              },
+            });
+          } else {
+            res.status(401).send({
+              error: "TRA-01",
+              message: "Conta de destino não encontrada.",
+            });
+          }
+        } else {
+          res.status(401).send({
+            error: "TRA-01",
+            message: "Conta de destino não encontrada.",
+          });
+        }
+      } else if (identificacao.length < 11) {
+        numero_conta = parseInt(identificacao, 10);
+        conta_destino = await accountModel.getNumeroConta(numero_conta);
+
+        if (conta_destino) {
+          usuario_destino = await userModel.get(conta_destino?.id_usuario);
+
+          if (usuario_destino) {
+            res.status(200).send({
+              dados: {
+                nome: usuario_destino?.nome_completo,
+                numero_conta: String(conta_destino.id),
+              },
+            });
+          }
+        } else {
+          res.status(401).send({
+            error: "TRA-01",
+            message: "Conta de destino não encontrada.",
+          });
+        }
+      } else {
+        res.status(404).send({
+          error: "TRA-01",
+          message: "Conta de destino não encontrada.",
+        });
+      }
+    } catch (e) {
+      console.log("Fail:", e);
+      res.status(500).send({
+        error: "ACC-04",
+        message: "Failed to get destiny account data" + e,
       });
     }
   };

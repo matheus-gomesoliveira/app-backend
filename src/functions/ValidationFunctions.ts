@@ -24,7 +24,7 @@ export function validacaoTelefone(telefone: string): boolean {
 }
 
 export function validacaoTelefoneTamanho(telefone: string): boolean {
-  if (telefone.length != 11) {
+  if (telefone.length  !== 11) {
     return false;
   }
   return true;
@@ -49,7 +49,7 @@ function validacaoCPFformato(cpf: string): boolean {
 }
 
 function validacaoCPFtamanho(cpf: string): boolean {
-  if (cpf.length != 11) {
+  if (cpf.length  !== 11) {
     return false;
   }
   return true;
@@ -70,7 +70,7 @@ function validacaoCPFdigito(cpf: string): boolean {
     resto = 0;
   }
 
-  if (resto !== parseInt(cpf.substring(9, 10))) {
+  if (resto  !== parseInt(cpf.substring(9, 10))) {
     return false;
   }
 
@@ -86,7 +86,7 @@ function validacaoCPFdigito(cpf: string): boolean {
     resto = 0;
   }
 
-  if (resto !== parseInt(cpf.substring(10, 11))) {
+  if (resto  !== parseInt(cpf.substring(10, 11))) {
     return false;
   }
 
@@ -238,7 +238,7 @@ export function updateUserValidations(
       });
     }
 
-    if (updateUser.nome_completo != "") {
+    if (updateUser.nome_completo  !== "") {
       var regexNome =
         /^[[a-zA-Z\u00C0-\u00FF ]{3,}(?: [a-zA-Z\u00C0-\u00FF ]+){1,}$/;
       if (!regexNome.test(updateUser.nome_completo)) {
@@ -251,7 +251,7 @@ export function updateUserValidations(
       updateUser.nome_completo = usuarioAlvo?.nome_completo;
     }
 
-    if (updateUser.email != "") {
+    if (updateUser.email  !== "") {
       var regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!regexEmail.test(updateUser.email)) {
         arrErrors.push({ error: "ATT-O4", message: "Email inválido" });
@@ -260,7 +260,7 @@ export function updateUserValidations(
       updateUser.email = usuarioAlvo.email;
     }
 
-    if (updateUser.telefone != "") {
+    if (updateUser.telefone  !== "") {
       var regexTelefone = /^(1[1-9]|[2-9][0-9])\d{9}$/;
       if (!regexTelefone.test(updateUser.telefone)) {
         arrErrors.push({ error: "ATT-O5", message: "Telefone inválido" });
@@ -287,32 +287,32 @@ export function updateAddressValidations(
         message: "Seu CEP deve conter apenas 8 caractéres alfanuméricos",
       };
     }
-    if (enderecoUpdate.cep == "")
+    if (enderecoUpdate.cep ==="")
       return {
         error: "ATT-01",
         message: "Todos os dados do novo endereço devem estar preenchidos",
       };
-    if (enderecoUpdate.rua == "")
+    if (enderecoUpdate.rua ==="")
       return {
         error: "ATT-02",
         message: "Todos os dados do novo endereço devem estar preenchidos",
       };
-    if (enderecoUpdate.bairro == "")
+    if (enderecoUpdate.bairro ==="")
       return {
         error: "ATT-03",
         message: "Todos os dados do novo endereço devem estar preenchidos",
       };
-    if (enderecoUpdate.cidade == "")
+    if (enderecoUpdate.cidade ==="")
       return {
         error: "ATT-04",
         message: "Todos os dados do novo endereço devem estar preenchidos",
       };
-    if (enderecoUpdate.numero == "")
+    if (enderecoUpdate.numero ==="")
       return {
         error: "ATT-05",
         message: "Todos os dados do novo endereço devem estar preenchidos",
       };
-    if (enderecoUpdate.uf == "")
+    if (enderecoUpdate.uf ==="")
       return {
         error: "ATT-06",
         message: "Todos os dados do novo endereço devem estar preenchidos",
@@ -355,7 +355,7 @@ export async function novaSenhaValidacao(
       });
     }
 
-    if (novaSenha == senhaAtual) {
+    if (novaSenha ===senhaAtual) {
       arrErrors.push({
         error: "ATT-13",
         message: "Nova senha deve ser diferente da atual",
@@ -384,7 +384,7 @@ export async function novaSenhaTransacionalValidacao(
     });
   }
 
-  if(nova_senha !== confirmar_nova_senha){
+  if(nova_senha  !== confirmar_nova_senha){
     arrErrors.push({
       error:"TRP-02",
       message:"As senhas devem coincidir."

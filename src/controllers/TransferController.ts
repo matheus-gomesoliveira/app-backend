@@ -1,12 +1,9 @@
 import { Request, Response } from "express";
-import { TransferEntrada, TransferSaida } from "dtos/TransferDTO";
 import TransferModel from "models/TransferModel";
 import AccountModel from "models/AccountModel";
 import UserModel from "models/UserModel";
-import { ContaEntrada } from "dtos/AccountDTO";
 import bcrypt from "bcrypt";
-import { FullUsuarioEntrada } from "dtos/UserDTO";
-import { Decimal } from "@prisma/client/runtime";
+import { get } from "http";
 
 const transferModel = new TransferModel();
 const accountModel = new AccountModel();
@@ -21,36 +18,36 @@ export default class TransferController {
       var destinoCpf;
       var destinoNumeroConta;
       const transferencia = req.body;
-      const destino = req.body.destino
+      const destino = req.body.destino;
       const senhaTransacao = req.body.senha_transacional;
-      
-      if(usuario_origem){
-        const conta_origem = await accountModel.get(usuario_origem.id) 
-          /*VERIFICAR SE CPF OU NUMERO DA CONTA FOI INFORMADO*/
-        if(!destino){
+
+      if (usuario_origem) {
+        const conta_origem = await accountModel.get(usuario_origem.id);
+        /*VERIFICAR SE CPF OU NUMERO DA CONTA FOI INFORMADO*/
+        if (!destino) {
           res.status(401).send({
-            error:"TRA-11",
-            message:"Campo de destino inválido",
-          })
+            error: "TRA-11",
+            message: "Campo de destino inválido",
+          });
         }
-        if(!transferencia.valor){
+        if (!transferencia.valor) {
           res.status(401).send({
-            error:"TRA-12",
-            message:"Campo de valor inválido",
-          })
+            error: "TRA-12",
+            message: "Campo de valor inválido",
+          });
         }
 
-        if(!senhaTransacao){
+        if (!senhaTransacao) {
           res.status(401).send({
-            error:"TRA-13",
-            message:"Campo de senha inválido",
-          })
+            error: "TRA-13",
+            message: "Campo de senha inválido",
+          });
         }
 
-        if (destino.length == 11) {
+        if (destino.length ===11) {
           destinoCpf = destino;
         } else {
-          destinoNumeroConta = destino;
+          destinoNumeroConta = parseInt(destino);
         }
 
         /*BUSCAR CONTA CASO CPF*/
@@ -65,7 +62,16 @@ export default class TransferController {
             });
           }
         } else {
-          conta_destino = await accountModel.getNumeroConta(destinoNumeroConta);
+          if (destinoNumeroConta)
+            conta_destino = await accountModel.getNumeroConta(
+              destinoNumeroConta
+            );
+          else {
+            res.status(401).send({
+              error: "TRA-01",
+              message: "Dados de destino inválidos",
+            });
+          }
         }
 
         if (conta_origem && conta_destino) {
@@ -83,22 +89,23 @@ export default class TransferController {
                   message: "o valor da transferência inválido",
                 });
               } else {
-                if (conta_origem.id != conta_destino.id) {
+                if (conta_origem.id  !== conta_destino.id) {
                   transferencia.id_destinatario = conta_destino.id;
                   transferencia.id_remetente = conta_origem.id;
                   transferencia.valor = req.body.valor;
                   transferencia.descricao = req.body.descricao;
                   transferencia.status = "confirmada";
-  
-                  await transferModel.transfer(
+
+                  const newTransfer = await transferModel.transfer(
                     transferencia,
                     conta_origem,
                     conta_destino
                   );
 
                   res.status(201).json({
-                    status:"sucesso",
-                    message: "sua transferência foi realizada com sucesso"
+                    id:String(newTransfer.id),
+                    status: "sucesso",
+                    message: "sua transferência foi realizada com sucesso",
                   });
                 } else {
                   res.status(401).send({
@@ -107,8 +114,7 @@ export default class TransferController {
                       "Não podem ser realizadas transferências para a mesma conta de origem",
                   });
                 }
-              } 
-              
+              }
             } else {
               res.status(401).send({
                 error: "TRA-03",
@@ -133,10 +139,12 @@ export default class TransferController {
         error: "TRA-00",
         message: "Não foi possível realizar a transferência",
       });
+      console.log(e)
     }
   };
 
   getTransfer = async (req: Request, res: Response) => {
+    console.log('>>>>>>>>AQUI')
     try {
       const id_transferencia: number = parseInt(req.params.id_transferencia);
       const newTransfer = await transferModel.get(id_transferencia);
@@ -155,9 +163,9 @@ export default class TransferController {
         const usuario_destino = await userModel.get(id_usuario_destino);
 
         const check_usuario_origem: boolean =
-          id_usuario_alvo == id_usuario_origem;
+          id_usuario_alvo ===id_usuario_origem;
         const check_usuario_destino: boolean =
-          id_usuario_alvo == id_usuario_destino;
+          id_usuario_alvo ===id_usuario_destino;
 
         if (!check_usuario_origem && !check_usuario_destino) {
           res.status(401).send({
@@ -167,13 +175,24 @@ export default class TransferController {
         }
 
         var tipo_transfer;
-        if (id_usuario_alvo == id_usuario_origem) {
+        if (id_usuario_alvo ===id_usuario_origem) {
           tipo_transfer = "SAIDA";
         } else {
-          if (id_usuario_alvo == id_usuario_destino) {
+          if (id_usuario_alvo ===id_usuario_destino) {
             tipo_transfer = "ENTRADA";
           }
         }
+
+        function dataBarras(dateString: string): string {
+          const parts = dateString.split("-");
+          const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+          return formattedDate;
+        }
+
+        const dia = dataBarras(
+          newTransfer.data_transferencia.toISOString().slice(0, 10)
+        );
+        const hora = newTransfer.data_transferencia.toISOString().slice(11, 16);
 
         res.status(200).json({
           transferencia: {
@@ -182,6 +201,24 @@ export default class TransferController {
             nome_destino: usuario_destino?.nome_completo,
             conta_origem: conta_origem?.numero_conta,
             conta_destino: conta_destino?.numero_conta,
+            cpf_origem: usuario_origem
+              ? "***." +
+                usuario_origem.cpf.substring(3, 6) +
+                "." +
+                usuario_origem.cpf.substring(6, 9) +
+                "-**"
+              : "",
+            cpf_destino: usuario_destino
+              ? "***." +
+                usuario_destino.cpf.substring(3, 6) +
+                "." +
+                usuario_destino.cpf.substring(6, 9) +
+                "-**"
+              : "",
+            data_transferencia: {
+              dia: dia,
+              hora: hora,
+            },
             valor: newTransfer.valor,
             descricao: newTransfer.descricao,
             tipo: tipo_transfer,
@@ -204,127 +241,169 @@ export default class TransferController {
 
   getExtrato = async (req: Request, res: Response) => {
     try {
-      const id_usuario_alvo = parseInt(req.app.locals.payload)
-      const conta_alvo = await accountModel.getConta(id_usuario_alvo)
+      const id_usuario_alvo = parseInt(req.app.locals.payload);
+      const conta_alvo = await accountModel.getConta(id_usuario_alvo);
 
-
-      const tipo = (req.query.type)?.toString().toUpperCase() || 'TUDO'
-      const pagina = Number(req.query.page) || 1
-
+      const tipo = req.query.type?.toString().toUpperCase() || "TUDO";
+      const pagina = Number(req.query.page) || 1;
 
       const dataHoje = new Date();
       const fuso = dataHoje.getTimezoneOffset() * 60000;
       const dataFuso = new Date(dataHoje.getTime() - fuso);
-      const dataHojeFormatada = dataFuso.toISOString().slice(0,10)
+      const dataHojeFormatada = dataFuso.toISOString().slice(0, 10);
 
-      function dataFormatada(data: string): string {
-        const splits = data.split('/');
+      function dataHifens(data: string): string {
+        const splits = data.split("/");
         const dataFormatada = `${splits[2]}-${splits[1]}-${splits[0]}`;
         return dataFormatada;
       }
 
-      const take = 8
-      const skip = (pagina-1)*take
-      const ordem = (req.query.order)?.toString().toLowerCase() as 'asc'| 'desc' || 'asc'
-      const data_inicio = req.query.start_date ? new Date(dataFormatada(req.query.start_date as string)) : new Date('2023-01-01');
-      const data_final = req.query.end_date ? new Date(dataFormatada(req.query.end_date as string)) : new Date(dataHojeFormatada)
+      const take = 8;
+      const skip = (pagina - 1) * take;
+      const ordem =
+        (req.query.order?.toString().toLowerCase() as "asc" | "desc") || "desc";
+      const data_inicio = req.query.start_date
+        ? new Date(dataHifens(req.query.start_date as string))
+        : new Date("2023-01-01");
+      const data_final = req.query.end_date
+        ? new Date(dataHifens(req.query.end_date as string))
+        : new Date(dataHojeFormatada);
 
-      const isIn:boolean = (tipo === "ENTRADA") 
-      const isOut:boolean = (tipo === "SAIDA")
-      
-      let extrato
-      let total_transferencias
-      let total_paginas
+      const isIn: boolean = tipo === "ENTRADA";
+      const isOut: boolean = tipo === "SAIDA";
 
-      if(conta_alvo){
-        const id_conta_alvo = conta_alvo.id
+      let extrato;
+      let total_transferencias;
+      let total_paginas;
 
-        if(isIn){
-           extrato = await transferModel.getInTransfers(id_conta_alvo, skip, take, ordem, data_inicio, data_final) 
-           total_transferencias = await transferModel.totalInTransfers(id_conta_alvo, data_inicio, data_final) 
-           total_paginas = Math.ceil(total_transferencias/take)                    
-        } else if(isOut){
-           extrato = await transferModel.getOutTransfers(id_conta_alvo, skip, take, ordem, data_inicio, data_final) 
-           total_transferencias = await transferModel.totalOutTransfers(id_conta_alvo, data_inicio, data_final) 
-           total_paginas = Math.ceil(total_transferencias/take)   
+      if (conta_alvo) {
+        const id_conta_alvo = conta_alvo.id;
+
+        if (isIn) {
+          extrato = await transferModel.getInTransfers(
+            id_conta_alvo,
+            skip,
+            take,
+            ordem,
+            data_inicio,
+            data_final
+          );
+          total_transferencias = await transferModel.totalInTransfers(
+            id_conta_alvo,
+            data_inicio,
+            data_final
+          );
+          total_paginas = Math.ceil(total_transferencias / take);
+        } else if (isOut) {
+          extrato = await transferModel.getOutTransfers(
+            id_conta_alvo,
+            skip,
+            take,
+            ordem,
+            data_inicio,
+            data_final
+          );
+          total_transferencias = await transferModel.totalOutTransfers(
+            id_conta_alvo,
+            data_inicio,
+            data_final
+          );
+          total_paginas = Math.ceil(total_transferencias / take);
         } else {
-           extrato = await transferModel.getAllTransfers(id_conta_alvo, skip, take, ordem, data_inicio, data_final) 
-           total_transferencias = await transferModel.totalTransfers(id_conta_alvo, data_inicio, data_final) 
-           total_paginas = Math.ceil(total_transferencias/take)
+          extrato = await transferModel.getAllTransfers(
+            id_conta_alvo,
+            skip,
+            take,
+            ordem,
+            data_inicio,
+            data_final
+          );
+          total_transferencias = await transferModel.totalTransfers(
+            id_conta_alvo,
+            data_inicio,
+            data_final
+          );
+          total_paginas = Math.ceil(total_transferencias / take);
         }
 
-        const arr_extrato =[]
-      
-      for(const transferencia of extrato){
+        const arr_extrato = [];
 
-        const conta_origem = await accountModel.get(transferencia.id_remetente) 
-        const conta_destino = await accountModel.get(transferencia.id_destinatario) 
-                
-        const usuario_origem = await userModel.get(conta_origem?.id_usuario)
-        const usuario_destino = await userModel.get(conta_destino?.id_usuario)
-        
-        const is_conta_origem:boolean = (id_usuario_alvo == usuario_origem?.id) 
-        const is_conta_destino:boolean = (id_usuario_alvo == usuario_destino?.id)
+        for (const transferencia of extrato) {
+          const conta_origem = await accountModel.get(
+            transferencia.id_remetente
+          );
+          const conta_destino = await accountModel.get(
+            transferencia.id_destinatario
+          );
 
-        var tipo_transfer;
-        if (is_conta_origem) {
-          tipo_transfer = "SAIDA";
-        } else {
-          if (is_conta_destino) {
-            tipo_transfer = "ENTRADA";
-          }
-        }
+          const usuario_origem = await userModel.get(conta_origem?.id_usuario);
+          const usuario_destino = await userModel.get(
+            conta_destino?.id_usuario
+          );
 
+          const is_conta_origem: boolean =
+            id_usuario_alvo ===usuario_origem?.id;
+          const is_conta_destino: boolean =
+            id_usuario_alvo ===usuario_destino?.id;
 
-        function formatDate(dateString: string): string {
-          const parts = dateString.split('-');
-          const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-          return formattedDate;
-        }
-
-        const dia = formatDate(transferencia.data_transferencia.toISOString().slice(0, 10))
-        const hora = transferencia.data_transferencia.toISOString().slice(11, 16)
-
-
-        const transferencia_tratada = {
-          id_transferencia:transferencia.id,
-          conta_origem:conta_origem?.numero_conta,
-          conta_destino:conta_destino?.numero_conta,
-          data_transferencia:{
-            dia:dia,
-            hora:hora
-          },
-          valor:transferencia.valor,
-          descricao:transferencia.descricao,
-          status:transferencia.status,
-          tipo:tipo_transfer,
-        }
-        arr_extrato.push(transferencia_tratada)
-       }
-
-        if(arr_extrato.length != 0){
-          res.status(200).send({
-            transferencias:arr_extrato,
-            paginas:{
-              pagina: pagina,
-              total:total_paginas
+          var tipo_transfer;
+          if (is_conta_origem) {
+            tipo_transfer = "SAIDA";
+          } else {
+            if (is_conta_destino) {
+              tipo_transfer = "ENTRADA";
             }
-          })
-        } else {
-          res.status(200).send({
-            message:'não há transferências referentes á esse periodo'
-          })
+          }
+
+          function dataBarras(dateString: string): string {
+            const parts = dateString.split("-");
+            const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            return formattedDate;
+          }
+
+          const dia = dataBarras(
+            transferencia.data_transferencia.toISOString().slice(0, 10)
+          );
+          const hora = transferencia.data_transferencia
+            .toISOString()
+            .slice(11, 16);
+
+          const transferencia_tratada = {
+            id_transferencia: transferencia.id,
+            conta_origem: conta_origem?.numero_conta,
+            conta_destino: conta_destino?.numero_conta,
+            data_transferencia: {
+              dia: dia,
+              hora: hora,
+            },
+            valor: transferencia.valor,
+            descricao: transferencia.descricao,
+            status: transferencia.status,
+            tipo: tipo_transfer,
+          };
+          arr_extrato.push(transferencia_tratada);
         }
 
+        if (arr_extrato.length  !== 0) {
+          res.status(200).send({
+            transferencias: arr_extrato,
+            paginas: {
+              pagina: pagina,
+              total: total_paginas,
+            },
+          });
+        } else {
+          res.status(200).send({
+            message: "não há transferências referentes á esse periodo",
+          });
+        }
       }
-
     } catch (e) {
-      console.log("Não foi possível recuperar o extrato", e)
+      console.log("Não foi possível recuperar o extrato", e);
       res.status(500).send({
-        error:"EXT-00",
-        message: "Não foi possível recuperar o extrato"
-      })
+        error: "EXT-00",
+        message: "Não foi possível recuperar o extrato",
+      });
     }
-    
-  }
+  };
 }
